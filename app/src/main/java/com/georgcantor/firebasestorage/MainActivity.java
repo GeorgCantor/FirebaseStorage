@@ -1,15 +1,22 @@
 package com.georgcantor.firebasestorage;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 
@@ -41,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         buttonDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                downloadImage();
             }
         });
     }
@@ -51,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         StorageReference rootRef = storage.getReference();
         StorageReference bearRef = rootRef.child("images/tv_banner.jpg");
 
+        // Get the data from the image as bytes
         ImageView bearImage = getSelectedBearImage();
         bearImage.setDrawingCacheEnabled(true);
         bearImage.buildDrawingCache();
@@ -59,6 +67,45 @@ public class MainActivity extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
 
+        // Upload it to our reference
+        UploadTask uploadTask = bearRef.putBytes(data);
+        buttonDownload.setEnabled(false);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_TAG, "Upload failed: " + e.getMessage());
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                Log.d(LOG_TAG, "Download Url: " + downloadUrl);
+                buttonDownload.setEnabled(true);
+            }
+        });
+    }
+
+    private void downloadImage() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference rootRef = storage.getReference();
+        StorageReference bearRef = rootRef.child("images/tv_banner.jpg");
+
+        // Download our data with a max allocation of 1MB
+        final long ONE_MEGABYTE = 1024 * 1024;
+        bearRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                // Convert bytes to bitmap and call setImageBitmap
+                Log.d(LOG_TAG, "Download successful");
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                imageviewResult.setImageBitmap(bitmap);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_TAG, "Download failed: " + e.getMessage());
+            }
+        });
     }
 
     private ImageView getSelectedBearImage() {
