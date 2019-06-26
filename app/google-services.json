@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "551086451572-r31604st8ogu9t770ngem3dushetc6v4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.georgcantor.firebasestorage",
+            "certificate_hash": "c877dd51cd8d77d47a03d3ae1249eff3f3ea6440"
+          }
+        },
+        {
           "client_id": "551086451572-82n44smqm2rafldrn7a2o0ncgjq65lo2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -33,20 +41,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "551086451572-judva0g516fdu9am8c9klscu9u8ei5ld.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }
