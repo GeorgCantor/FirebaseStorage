@@ -12,7 +12,7 @@ class AuthActivity : AppCompatActivity(), AuthListener {
         setContentView(R.layout.activity_auth)
 
         if (savedInstanceState == null) {
-            replaceFragment
+            replaceFragment(R.id.container)
         }
     }
 

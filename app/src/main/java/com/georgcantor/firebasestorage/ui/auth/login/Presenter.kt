@@ -1,38 +1,55 @@
 package com.georgcantor.firebasestorage.ui.auth.login
 
+import android.view.View
 import com.georgcantor.firebasestorage.isEmailValid
 import com.georgcantor.firebasestorage.model.entity.User
 import com.georgcantor.firebasestorage.model.repo.auth.AuthRepo
+import com.georgcantor.firebasestorage.model.repo.auth.AuthRepoCallback
 
-class Presenter(authRepo: AuthRepo) {
+class Presenter(private val authRepo: AuthRepo) {
 
-    private var loginView: LoginView? = null
+    private var viewInterface: ViewInterface? = null
 
-    fun attachView(view: LoginView) {
-        loginView = view
+    fun attachView(view: ViewInterface) {
+        viewInterface = view
     }
 
     fun detachView() {
-        loginView = null
+        viewInterface = null
     }
 
     fun doLogin(user: User) {
         if (user.email?.isEmpty() == true) {
-            loginView?.onEmailEmpty()
+            viewInterface?.onEmailEmpty()
 
             return
         }
 
         if (user.email?.isEmailValid() == false) {
-            loginView?.onEmailInvalid()
+            viewInterface?.onEmailInvalid()
 
             return
         }
 
         if (user.password?.isEmpty() == true) {
-            loginView?.onPasswordEmpty()
+            viewInterface?.onPasswordEmpty()
 
             return
         }
+
+        viewInterface?.onLoginStart()
+        viewInterface?.onProgress(View.GONE)
+
+        authRepo.doLogin(user, object : AuthRepoCallback {
+            override fun onSuccess(user: User) {
+                viewInterface?.onLoginSuccess(user)
+                viewInterface?.onProgress(View.VISIBLE)
+            }
+
+            override fun onFailed(error: String?) {
+                viewInterface?.onLoginFailed(error)
+                viewInterface?.onProgress(View.VISIBLE)
+            }
+        })
     }
 }

@@ -2,7 +2,7 @@ package com.georgcantor.firebasestorage.ui.auth.login
 
 import com.georgcantor.firebasestorage.model.entity.User
 
-interface LoginView {
+interface ViewInterface {
 
     fun onEmailEmpty()
 
